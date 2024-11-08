@@ -10,8 +10,9 @@ debug = env == 'development'
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET'])
-def home():
+@app.route('/', defaults={'path': ''})
+@app.route('/<caption>', methods=['GET'])
+def home(caption):
     image_type = request.args.get('type')
     image_path = os.path.join('emojis', f'{image_type}.png')
     if not os.path.exists(image_path):
@@ -33,7 +34,10 @@ def home():
         font = ImageFont.load_default(font_size)
 
     # Generate image
-    caption = request.args.get('caption', '').capitalize()
+    caption = caption.capitalize()
+    print(caption)
+    if caption.lower().endswith('.gif'):
+        caption = caption[:-4]
 
     # Calculate text size and position
     bbox = draw.textbbox((0, 0), caption, font=font, spacing=0, stroke_width=4)
@@ -43,7 +47,6 @@ def home():
 
     # Draw text with stroke
     draw.text((x, y), caption, font=font, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(0, 0, 0, 255))
-    # Draw text without stroke
 
     # Save the edited image to a BytesIO object
     img_io = BytesIO()
