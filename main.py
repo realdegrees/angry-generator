@@ -10,9 +10,9 @@ debug = env == 'development'
 app = Flask(__name__)
 
 
-@app.route('/', defaults={'path': ''})
+@app.route('/')
 @app.route('/<caption>', methods=['GET'])
-def home(caption):
+def home(caption=''):
     image_type = request.args.get('type')
     image_path = os.path.join('emojis', f'{image_type}.png')
     if not os.path.exists(image_path):
