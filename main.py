@@ -35,7 +35,6 @@ def home(caption=''):
 
     # Generate image
     caption = caption.capitalize()
-    print(caption)
     if caption.lower().endswith('.gif'):
         caption = caption[:-4]
 
@@ -54,7 +53,7 @@ def home(caption=''):
     img_io.seek(0)
 
     # Return the image
-    return send_file(img_io, mimetype='image/gif')
+    return send_file(img_io, mimetype='image/gif', download_name=f'{caption}.gif')
 
 
 if __name__ == '__main__':
