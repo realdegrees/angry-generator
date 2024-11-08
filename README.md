@@ -7,7 +7,7 @@ A REST API that returns an angry emoji with the caption provided in the URL.
 This GIF demonstrates how the site can be used to directly embed the generated image as a GIF in Discord.   
 By embedding the GIF in Discord, you can easily view and favorite it.
 
-A live version is available at [https://angry.realdegrees.dev/](https://angry.realdegrees.dev/adjust%20the%20caption%20in%20the%20url)
+A live version is available at [https://angry.realdegrees.dev/](https://angry.realdegrees.dev/adjust%20the%20caption%20in%20the%20url.gif)
 
 ### Endpoints
 
