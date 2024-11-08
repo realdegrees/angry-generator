@@ -1,6 +1,6 @@
 ## Angry Generator
 
-Shows an angry red emoji with the caption provided in the URL.
+A REST API that returns an angry emoji with the caption provided in the URL.
 
 ![Example](example.gif)
 
