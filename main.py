@@ -1,13 +1,23 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, make_response
 import os
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_caching import Cache
 
 load_dotenv()
 env = os.getenv('ENV', 'development')
 debug = env == 'development'
 app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour", "10 per minute", "2 per second"],
+    storage_uri="memory://",
+)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 def calculate_font_size(caption, image_width, base_font_size=170):
     # Adjust the font size based on the length of the caption
@@ -16,8 +26,11 @@ def calculate_font_size(caption, image_width, base_font_size=170):
         return max(base_font_size - (len(caption) - max_length) * 5, 110)  # Ensure font size doesn't go below 20
     return base_font_size
 
+
+
 @app.route('/')
 @app.route('/<caption>', methods=['GET'])
+@cache.cached(timeout=60, query_string=True)
 def home(caption=''):
     image_type = request.args.get('type')
     image_path = os.path.join('emojis', f'{image_type}.png')
@@ -79,7 +92,11 @@ def home(caption=''):
     img_io.seek(0)
 
     # Return the image
-    return send_file(img_io, mimetype='image/gif', download_name=f'{caption}.gif')
+    response = make_response(send_file(img_io, mimetype='image/gif', download_name=f'{caption}.gif'))
+    # Cache for 1 hour
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+    response.headers['Expires'] = '3600'
+    return response
 
 
 if __name__ == '__main__':
