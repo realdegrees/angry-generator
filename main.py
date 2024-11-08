@@ -13,7 +13,7 @@ def calculate_font_size(caption, image_width, base_font_size=170):
     # Adjust the font size based on the length of the caption
     max_length = 20  # Maximum length for the base font size
     if len(caption) > max_length:
-        return max(base_font_size - (len(caption) - max_length) * 5, 90)  # Ensure font size doesn't go below 20
+        return max(base_font_size - (len(caption) - max_length) * 5, 110)  # Ensure font size doesn't go below 20
     return base_font_size
 
 @app.route('/')
