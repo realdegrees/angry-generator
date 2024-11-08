@@ -43,6 +43,11 @@ def home(caption=''):
     # Initialize ImageDraw
     draw = ImageDraw.Draw(image)
 
+    # Adjust caption
+    caption = caption.capitalize()
+    if caption.lower().endswith('.gif'):
+        caption = caption[:-4]
+        
     # Load a font
     font = request.args.get('font', 'impact')
     base_font_size = int(request.args.get('font_size', '170'))
@@ -53,10 +58,7 @@ def home(caption=''):
     except OSError:
         font = ImageFont.load_default(font_size)
 
-    # Generate image
-    caption = caption.capitalize()
-    if caption.lower().endswith('.gif'):
-        caption = caption[:-4]
+
 
     # Split text into multiple lines if it exceeds 90% of the image width
     max_width = image.width * 0.9
