@@ -17,4 +17,4 @@ A live version is available at [https://angry.realdegrees.dev/](https://angry.re
 - `font`: The font to be used for the caption (Currently only supports 'arial') (e.g., `font=arial`)
 - `font_size`: The size of the font to be used for the caption (e.g., `font_size=150`)
 
-URL Syntax: `http(s)://<domain>.<tld>/<caption>?type=<type>&font=<font>&font_size=<font_size>`
+URL Syntax: `http(s)://<domain>.<tld>/<caption>.gif?type=<type>&font=<font>&font_size=<font_size>`
