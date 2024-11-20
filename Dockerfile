@@ -1,7 +1,7 @@
 # Use a lightweight base image
 FROM python:3.9-alpine
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash ffmpeg
 
 # Set the working directory
 WORKDIR /app
