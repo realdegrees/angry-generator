@@ -6,6 +6,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 from image import create_image
+from PIL import Image
+
 
 load_dotenv()
 env = os.getenv('ENV', 'development')
@@ -25,18 +27,38 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 @cache.cached(timeout=60, query_string=True)
 def home(caption=''):
     image_type = request.args.get('type')
-    image_path = os.path.join('emojis', f'{image_type}.png')
-    if not os.path.exists(image_path):
-        image_path = os.path.join('emojis', 'default.png')
+    extensions = ['png', 'jpg', 'jpeg', 'gif']
+    image_path = None
+    extension =  None
+    mimetype = None
+    
+    for ext in extensions:
+        potential_path = os.path.join('background', f'{image_type}.{ext}')
+        if os.path.exists(potential_path):
+            image_path = potential_path
+            extension = ext
+            break
+    if image_path is None:
+        image_path = os.path.join('background', 'default.png')
 
-    image = create_image(caption, image_path)
-    # Save the  image to a BytesIO object
-    img_io = BytesIO()
-    image.save(img_io, 'GIF')   
-    img_io.seek(0)
+
+    # Save the image to a BytesIO object
+    result = BytesIO()
+    image_extensions = list(Image.EXTENSION.keys())
+    video_extensions = None # TODO - Add video support
+    if extension in image_extensions:
+        image = create_image(caption, image_path)
+        image.save(result, extension.upper())
+        mimetype = f'image/${extension}'
+    elif extension in video_extensions:
+        # TODO - Implement video support
+        print('Video support is not implemented yet')
+   
+
+    result.seek(0)
 
     # Return the image
-    response = make_response(send_file(img_io, mimetype='image/gif', download_name=f'{caption}.gif'))
+    response = make_response(send_file(result, mimetype=mimetype, download_name=f'{caption}.{extension}'))
     # Cache for 1 hour
     response.headers['Cache-Control'] = 'public, max-age=3600'
     response.headers['Expires'] = '3600'
