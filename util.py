@@ -25,14 +25,15 @@ def load_font(caption):
     return font_path, font_size
 
 def get_supported_video_formats():
-    # Run the ffmpeg -formats command
     result = subprocess.run(
         ['ffmpeg', '-formats'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    # Combine stdout and stderr
-    output = result.stdout + result.stderr
+    
+    if result.stderr:
+        raise Exception(f"Unable to get supported video formats for moviepy (ffmpeg)\n: {result.stderr}")
+    
     # Extract the list of supported formats
     formats = []
-    for line in output.splitlines():
+    for line in result.stdout.splitlines():
         if line.startswith(' DE') or line.startswith(' D'):
             parts = line.split()
             if len(parts) > 1:
