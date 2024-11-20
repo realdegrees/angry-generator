@@ -78,7 +78,7 @@ def home(caption=''):
             mimetype = 'video/webm'
         else:
             create_image(caption, path, extension, output)
-            mimetype, _ = 'image/gif'
+            mimetype = 'image/gif'
     elif extension in video_extensions:
         create_video(caption, path, extension, output, audio_path)
         mimetype = 'video/webm'
