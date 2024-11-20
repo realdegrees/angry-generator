@@ -6,6 +6,9 @@ RUN apk add --no-cache bash ffmpeg
 # Set the working directory
 WORKDIR /app
 
+# Create a directory for debugging
+RUN mkdir /app/debug
+
 # Copy the requirements file
 COPY requirements.txt .
 
