@@ -75,13 +75,13 @@ def home(caption=''):
     if extension in image_extensions:
         if audio_path:
             create_video(caption, path, extension, output, audio_path)
-            mimetype, _ = mimetypes.guess_type(path.replace(f'.{extension}', '.webm'))
+            mimetype = 'video/webm'
         else:
             create_image(caption, path, extension, output)
-            mimetype, _ = mimetypes.guess_type(path)
+            mimetype, _ = 'image/gif'
     elif extension in video_extensions:
         create_video(caption, path, extension, output, audio_path)
-        mimetype, _ = mimetypes.guess_type(path)
+        mimetype = 'video/webm'
 
 
 

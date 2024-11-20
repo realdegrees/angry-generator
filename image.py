@@ -25,4 +25,4 @@ def create_image(caption, image_path, extension, output):
         # Move to the next line with some spacing
         y += bbox[3] - bbox[1] + 10
 
-    image.save(output, 'PNG')
+    image.save(output, 'GIF')
