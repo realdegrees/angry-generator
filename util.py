@@ -19,7 +19,7 @@ def process_caption(caption):
 
 def load_font(caption):
     font_name = request.args.get('font', 'impact')
-    base_font_size = int(request.args.get('font_size', '170'))
+    base_font_size = int(request.args.get('font_size', '190'))
     font_size = calculate_font_size(caption, base_font_size)
     font_path = os.path.join('fonts', f'{font_name}.ttf')
     return font_path, font_size
@@ -28,7 +28,7 @@ def get_supported_video_formats():
     result = subprocess.run(
         ['ffmpeg', '-formats'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     
-    if result.stderr:
+    if not result.stdout:
         raise Exception(f"Unable to get supported video formats for moviepy (ffmpeg)\n: {result.stderr}")
     
     # Extract the list of supported formats
@@ -37,5 +37,5 @@ def get_supported_video_formats():
         if line.startswith(' DE') or line.startswith(' D'):
             parts = line.split()
             if len(parts) > 1:
-                formats.append(parts[1])
+                formats.extend(parts[1].split(','))
     return formats

@@ -2,14 +2,15 @@ from PIL import Image, ImageDraw, ImageFont
 from util import process_caption, load_font
 import textwrap
 
-def create_image(caption, image_path): 
+def create_image(caption, image_path, extension, output): 
     # Open the image    
     image = Image.open(image_path)
     canvas = ImageDraw.Draw(image)
     
     # Process properties
     caption = process_caption(caption)
-    font = ImageFont.truetype(load_font(caption))
+    font_path, font_size = load_font(caption)
+    font = ImageFont.truetype(font_path, font_size)
     max_width = image.width * 0.9
     lines = textwrap.wrap(caption, width=max_width,
                           expand_tabs=False, replace_whitespace=False)
@@ -24,4 +25,4 @@ def create_image(caption, image_path):
         # Move to the next line with some spacing
         y += bbox[3] - bbox[1] + 10
 
-    return image
+    image.save(output, 'PNG')
