@@ -24,7 +24,7 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 @app.route('/')
 @app.route('/<caption>', methods=['GET'])
-@cache.cached(timeout=60, query_string=True)
+@cache.cached(timeout=600, query_string=True)
 def home(caption=''):
     image_type = request.args.get('type')
     extensions = ['png', 'jpg', 'jpeg', 'gif']
