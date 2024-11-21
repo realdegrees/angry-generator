@@ -31,68 +31,67 @@ image_extensions = [ext.lower().replace('.', '')
 video_extensions = get_supported_video_formats()
 supported_extensions = image_extensions + video_extensions
 
-# ! this loads the file from disk on every non-cached request, this could be optimized to load files on startup but would break hots-swapping of files
-@app.route('/')
-@app.route('/<caption>', methods=['GET'])
-@cache.cached(timeout=600, query_string=True)
-def home(caption=''):
-    image_type = request.args.get('type') or os.getenv(
-        'DEFAULT', 'default')
 
-    path = None
-    extension = None
+class FileInfo:
+    def __init__(self, path, extension, filename):
+        self.path = path
+        self.extension = extension
+        self.filename = filename
 
-    # Check if the requested image exists and set the path, filename, and extension if it does
-    files = glob.glob(os.path.join('background', f'{image_type}.*'))
+
+def get_file_info(folder, name):
+    files = glob.glob(os.path.join(folder, f'{name}.*'))
     if files:
         path = files[0]
         filename = os.path.splitext(os.path.basename(path))[0]
         extension = os.path.splitext(path)[1][1:]
-        
-    else:
-        path = os.path.join('background', f'default.png')
-        filename = 'default.png'
-        extension = 'png'
-        if not os.path.exists(path):
-            return make_response("There was an issue loading the image. Please contact the admin if the issue persists.", 404)
+        return FileInfo(path, extension, filename)
+    return None
 
-    # Audio
-    
-    ## Build path
-    audio_arg = request.args.get("audio", filename)
-    audio_path = f'audio/{audio_arg}.ogg'
-    
-    ## Check conditions
-    disable_audio = audio_arg.lower() in ["off", "mute", "none", "false"]
-    audio_exists = os.path.exists(audio_path)
-    if disable_audio or not audio_exists:
-        audio_path = None
+# ! this loads the file from disk on every non-cached request, this could be optimized to load files on startup but would break hots-swapping of files
+
+
+@app.route('/')
+@app.route('/<caption>', methods=['GET'])
+@cache.cached(timeout=600, query_string=True)
+def home(caption=''):
+    # Load image
+    _image = request.args.get('type') or os.getenv(
+        'DEFAULT', 'default')
+    image = get_file_info('images', _image)
+    if image is None:
+        return make_response("There was an issue loading the image. Please contact the admin if the issue persists.", 404)
+
+    # Check audio conditions
+    _audio = request.args.get('audio', image.filename)
+    disable_audio = _audio.lower() in ["off", "mute", "none", "false"]
+    if not disable_audio:
+        audio = get_file_info('audio', _audio)
+
+    # Check background conditions
+    _background = request.args.get('background', image.filename)
+    disable_background = _audio.lower() in ["off", "mute", "none", "false"]
+    if not disable_background:
+        background = get_file_info('backgrounds', _background)
 
     # Create an object to store the result in memory
     output = BytesIO()
 
-    # Fill the output via the appropriate pipeline
-    if extension in image_extensions:
-        if audio_path:
-            create_video(caption, path, extension, output, audio_path)
-            mimetype = 'video/webm'
-        else:
-            create_image(caption, path, extension, output)
-            mimetype = 'image/gif'
-    elif extension in video_extensions:
-        create_video(caption, path, extension, output, audio_path)
+    if (image.extension in video_extensions or background and background.extension in video_extensions) or audio:
+        create_video(caption, image.path, image.extension, output, audio.path, background.path)
         mimetype = 'video/webm'
-
-
-
+    else:
+        create_image(caption, image.path, image.extension, output)
+        mimetype = 'image/gif'
+    
     # Build response
     output.seek(0)
     response = make_response(
-        send_file(output, mimetype=mimetype, download_name=f'{caption}.{extension}'))
+        send_file(output, mimetype=mimetype, download_name=f'{caption}.{image.extension}'))
     response.headers['Content-Type'] = mimetype
     response.headers['Cache-Control'] = f'public, max-age={60 * 60 * 24}'
     response.headers['Expires'] = f'{60 * 60 * 24}'
-    
+
     return response
 
 
